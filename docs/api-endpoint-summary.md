@@ -1,0 +1,33 @@
+# API Endpoint Summary
+
+- `GET /api/v1/health`
+- `GET /api/v1/products`
+- `GET /api/v1/products/:id`
+- `GET /api/v1/services`
+- `GET /api/v1/services/:id`
+- `POST /api/v1/contact`
+- `POST /api/v1/auth/register`
+- `GET /api/v1/auth/verify-email`
+- `POST /api/v1/auth/login`
+- `POST /api/v1/auth/logout`
+- `GET /api/v1/auth/me`
+- `POST /api/v1/auth/forgot-password`
+- `POST /api/v1/auth/reset-password`
+- `PATCH /api/v1/users/me`
+- `POST /api/v1/orders`
+- `GET /api/v1/orders`
+- `GET /api/v1/orders/:id`
+- `GET /api/v1/admin/summary`
+- `GET /api/v1/admin/users`
+- `GET /api/v1/admin/orders`
+- `PATCH /api/v1/admin/orders/:id`
+- `GET /api/v1/admin/products`
+- `POST /api/v1/admin/products`
+- `PUT /api/v1/admin/products/:id`
+- `GET /api/v1/admin/services`
+- `POST /api/v1/admin/services`
+- `PUT /api/v1/admin/services/:id`
+- `POST /api/v1/tickets`
+- `GET /api/v1/tickets`
+- `GET /api/v1/tickets/:id`
+- `PATCH /api/v1/tickets/:id` (admin)

@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500">
+  <rect width="800" height="500" fill="#111019"/>
+  <rect x="120" y="70" width="560" height="360" rx="20" fill="#1c1a28" stroke="#dc1b45" stroke-width="6"/>
+  <circle cx="300" cy="190" r="48" fill="#f1f1f1"/>
+  <circle cx="500" cy="190" r="48" fill="#f1f1f1"/>
+  <path d="M250 320c10-75 86-105 141-70 55-35 130-5 141 70" stroke="#f1f1f1" stroke-width="12" fill="none"/>
+  <path d="M330 262l56 26 83-45" stroke="#dc1b45" stroke-width="10" fill="none" stroke-linecap="round"/>
+  <text x="400" y="458" text-anchor="middle" fill="#f3f3f3" font-size="38" font-family="Arial Black, Arial">PRIVATE LESSONS</text>
+</svg>

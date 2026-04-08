@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500">
+  <rect width="800" height="500" fill="#0f0d14"/>
+  <rect x="120" y="70" width="560" height="360" rx="20" fill="#1a1622" stroke="#dc1b45" stroke-width="6"/>
+  <circle cx="400" cy="210" r="105" fill="none" stroke="#f3f3f3" stroke-width="12"/>
+  <path d="M300 210h200M400 110v200" stroke="#f3f3f3" stroke-width="10"/>
+  <path d="M282 146l22 40 45 7-33 32 8 45-42-22-41 22 8-45-33-32 45-7z" fill="#dc1b45"/>
+  <text x="400" y="458" text-anchor="middle" fill="#f3f3f3" font-size="34" font-family="Arial Black, Arial">LIFETIME MEMBERSHIP</text>
+</svg>

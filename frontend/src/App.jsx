@@ -44,11 +44,24 @@ function countDigits(phone) {
   return String(phone || '').replace(/\D/g, '').length
 }
 
+function formatPhoneDigits(input) {
+  const digits = String(input || '').replace(/\D/g, '').slice(0, 10)
+  if (digits.length <= 3) return digits
+  if (digits.length <= 6) return `(${digits.slice(0, 3)}) ${digits.slice(3)}`
+  return `(${digits.slice(0, 3)}) ${digits.slice(3, 6)}-${digits.slice(6)}`
+}
+
+function formatExpiry(input) {
+  const digits = String(input || '').replace(/\D/g, '').slice(0, 4)
+  if (digits.length < 3) return digits
+  return `${digits.slice(0, 2)}/${digits.slice(2)}`
+}
+
 function HomePage() {
   return (
     <section className="space-y-5">
       <img
-        src="/assets/dojo-fierce-logo.svg"
+        src="/assets/logo.jpg"
         alt="Karate Skillz Dojo logo"
         className="h-auto w-full max-w-3xl rounded border border-white/10 bg-dojo-ink/40 p-2 shadow-lg"
       />
@@ -101,16 +114,6 @@ function ShopPage() {
             <h2 className="text-xl">{item.name}</h2>
             <p className="text-sm text-gray-300">{item.description}</p>
             <p className="my-2 font-semibold">${Number(item.price || 0).toFixed(2)}</p>
-            <button
-              type="button"
-              className="text-sm text-dojo-crimson underline"
-              onClick={(e) => {
-                e.stopPropagation()
-                navigate(item.kind === 'product' ? `/products#item-${item.id}` : `/classes-services#item-${item.id}`)
-              }}
-            >
-              View on {item.kind === 'product' ? 'Products' : 'Classes/Services'} page
-            </button>
           </article>
         ))}
       </div>
@@ -121,12 +124,13 @@ function ShopPage() {
 function DetailPage({ type }) {
   const { id } = useParams()
   const { addToCart } = useCart()
-  const navigate = useNavigate()
   const [item, setItem] = useState(null)
   const [error, setError] = useState('')
   const [options, setOptions] = useState({ preferredDate: '', preferredTime: '', session: '', consent: false })
   const [quantity, setQuantity] = useState(1)
   const [addedMessage, setAddedMessage] = useState('')
+  const [groupStudents, setGroupStudents] = useState([{ name: '', level: 'Beginner Evening Session', months: 1 }])
+  const [sizes, setSizes] = useState(['M'])
 
   useEffect(() => {
     apiFetch(`/${type}/${id}`).then(setItem).catch((err) => setError(err.message))
@@ -137,20 +141,45 @@ function DetailPage({ type }) {
 
   function handleAdd() {
     if (item.name.toLowerCase().includes('private') && (!options.preferredDate || !options.preferredTime)) return
-    if (item.name.toLowerCase().includes('group') && !options.session) return
     if (item.name.toLowerCase().includes('life') && !options.consent) return
+
+    if (String(item.id) === '5') {
+      const validRows = groupStudents
+        .map((s) => ({
+          name: s.name.trim(),
+          level: s.level,
+          months: Math.max(1, Number(s.months) || 1),
+        }))
+        .filter((s) => s.name)
+      const totalMonths = validRows.reduce((sum, s) => sum + s.months, 0)
+      if (!totalMonths) {
+        setAddedMessage('Add at least one student.')
+        return
+      }
+      for (let i = 0; i < totalMonths; i += 1) {
+        addToCart({
+          id: item.id,
+          name: item.name,
+          type: item.kind,
+          price: Number(item.price || 0),
+          options: { ...options, students: validRows },
+        })
+      }
+      setAddedMessage('The item has been added to cart.')
+      window.setTimeout(() => setAddedMessage(''), 2500)
+      return
+    }
+
     const n = Number(quantity)
     const safeQty = Number.isFinite(n) && n > 0 ? Math.max(1, Math.floor(n)) : 1
+    const itemOptions = String(item.id) === '1'
+      ? { ...options, sizes: sizes.slice(0, safeQty) }
+      : options
     for (let i = 0; i < safeQty; i += 1) {
-      addToCart({ id: item.id, name: item.name, type: item.kind, price: Number(item.price || 0), options })
+      addToCart({ id: item.id, name: item.name, type: item.kind, price: Number(item.price || 0), options: itemOptions })
     }
-    setAddedMessage(`Added to cart (${safeQty}).`)
+    setAddedMessage('The item has been added to cart.')
     window.setTimeout(() => setAddedMessage(''), 2500)
-  }
-
-  function handleCheckout() {
-    handleAdd()
-    navigate('/checkout')
   }
 
   return (
@@ -159,7 +188,7 @@ function DetailPage({ type }) {
       {item.imageUrl && (
         <img className="h-64 w-full rounded object-cover" src={item.imageUrl} alt={item.name} loading="lazy" />
       )}
-      <p>{item.description}</p>
+      <p>{String(item.id) === '3' ? 'Flaming Knucks OF DOOM is a premium impact-training weapon simulator with reinforced grip and heat-themed styling for advanced drill sessions. Designed for controlled dojo training and display - not for unsupervised combat use.' : item.description}</p>
       <p className="font-semibold">${Number(item.price || 0).toFixed(2)}</p>
       {item.name.toLowerCase().includes('private') && (
         <div className="space-y-2">
@@ -167,7 +196,52 @@ function DetailPage({ type }) {
           <input className="w-full rounded bg-dojo-ink p-2" type="time" onChange={(e) => setOptions((o) => ({ ...o, preferredTime: e.target.value }))} />
         </div>
       )}
-      {item.name.toLowerCase().includes('group') && (
+      {String(item.id) === '5' && (
+        <div className="space-y-3 rounded border border-white/20 bg-dojo-ink/50 p-3">
+          <p className="text-sm text-gray-300">Add student names and session level. Quantity is auto-calculated as total months across all students.</p>
+          {groupStudents.map((student, idx) => (
+            <div key={`student-${idx}`} className="grid gap-2 md:grid-cols-3">
+              <input
+                className="rounded bg-dojo-ink p-2"
+                placeholder={`Student ${idx + 1} name`}
+                value={student.name}
+                onChange={(e) => setGroupStudents((prev) => prev.map((s, i) => (i === idx ? { ...s, name: e.target.value } : s)))}
+              />
+              <select
+                className="rounded bg-dojo-ink p-2"
+                value={student.level}
+                onChange={(e) => setGroupStudents((prev) => prev.map((s, i) => (i === idx ? { ...s, level: e.target.value } : s)))}
+              >
+                <option>Beginner Evening Session</option>
+                <option>Intermediate Weekend Session</option>
+                <option>Advanced Sparring Camp</option>
+              </select>
+              <input
+                className="rounded bg-dojo-ink p-2"
+                type="number"
+                min="1"
+                placeholder="Months"
+                value={student.months}
+                onChange={(e) => setGroupStudents((prev) => prev.map((s, i) => (i === idx ? { ...s, months: Math.max(1, Number(e.target.value) || 1) } : s)))}
+              />
+            </div>
+          ))}
+          <div className="flex items-center gap-3">
+            <button
+              type="button"
+              className="rounded border border-white/30 px-3 py-1 text-sm"
+              onClick={() => setGroupStudents((prev) => [...prev, { name: '', level: 'Beginner Evening Session', months: 1 }])}
+            >
+              Add Student
+            </button>
+            <span className="text-sm text-gray-300">
+              Quantity total: {groupStudents.reduce((sum, s) => sum + (s.name.trim() ? Math.max(1, Number(s.months) || 1) : 0), 0)}
+            </span>
+          </div>
+        </div>
+      )}
+
+      {item.name.toLowerCase().includes('group') && String(item.id) !== '5' && (
         <select className="w-full rounded bg-dojo-ink p-2" onChange={(e) => setOptions((o) => ({ ...o, session: e.target.value }))}>
           <option value="">Select a session</option>
           <option>Beginner Evening Session</option>
@@ -181,25 +255,59 @@ function DetailPage({ type }) {
         </label>
       )}
 
-      <label className="block text-sm text-gray-300">
-        Quantity
-        <input
-          className="mt-1 w-28 rounded bg-dojo-ink p-2"
-          type="number"
-          min="1"
-          value={quantity}
-          onChange={(e) => setQuantity(e.target.value)}
-        />
-      </label>
+      {String(item.id) !== '5' && (
+        <label className="block text-sm text-gray-300">
+          Quantity
+          <input
+            className="mt-1 w-28 rounded bg-dojo-ink p-2"
+            type="number"
+            min="1"
+            value={quantity}
+            onChange={(e) => {
+              const nextQty = e.target.value
+              setQuantity(nextQty)
+              if (String(item.id) === '1') {
+                const n = Math.max(1, Number(nextQty) || 1)
+                setSizes((prev) => Array.from({ length: n }, (_, i) => prev[i] || 'M'))
+              }
+            }}
+          />
+        </label>
+      )}
+
+      {String(item.id) === '1' && (
+        <div className="space-y-2 rounded border border-white/20 bg-dojo-ink/50 p-3">
+          <p className="text-sm text-gray-300">Select Gi size for each quantity:</p>
+          {Array.from({ length: Math.max(1, Number(quantity) || 1) }).map((_, idx) => (
+            <label key={`size-${idx}`} className="flex items-center gap-2 text-sm">
+              <span>Item {idx + 1}</span>
+              <select
+                className="rounded bg-dojo-ink p-2"
+                value={sizes[idx] || 'M'}
+                onChange={(e) =>
+                  setSizes((prev) => {
+                    const copy = [...prev]
+                    copy[idx] = e.target.value
+                    return copy
+                  })
+                }
+              >
+                <option value="XS">XS</option>
+                <option value="S">S</option>
+                <option value="M">M</option>
+                <option value="L">L</option>
+                <option value="XL">XL</option>
+              </select>
+            </label>
+          ))}
+        </div>
+      )}
 
       {addedMessage && <p className="text-base font-semibold text-green-400">{addedMessage}</p>}
 
       <div className="flex flex-wrap gap-3">
         <button className="rounded bg-dojo-red px-4 py-2" type="button" onClick={handleAdd}>
           Add to Cart
-        </button>
-        <button className="rounded bg-dojo-red px-4 py-2" type="button" onClick={handleCheckout}>
-          Checkout
         </button>
         <Link className="rounded bg-dojo-red px-4 py-2" to="/shop">
           Keep shopping
@@ -250,6 +358,12 @@ function CheckoutPage() {
 
       if (paymentMethod === 'card' && !/^4\d{15}$/.test(card.number.replace(/\s/g, ''))) {
         throw new Error('Use a test Visa number starting with 4 and 16 digits (e.g. 4111111111111111).')
+      }
+      if (paymentMethod === 'card' && !/^\d{2}\/\d{2}$/.test(card.expiry.trim())) {
+        throw new Error('Enter expiration in XX/XX format.')
+      }
+      if (paymentMethod === 'card' && !/^\d{3}$/.test(card.cvv.trim())) {
+        throw new Error('CVV must be exactly 3 digits.')
       }
 
       const payloadItems = sanitizeOrderItems(items)
@@ -347,19 +461,22 @@ function CheckoutPage() {
             className="w-full rounded bg-dojo-ink p-2"
             placeholder="Card number (test: 4111111111111111)"
             value={card.number}
-            onChange={(e) => setCard((c) => ({ ...c, number: e.target.value }))}
+            maxLength={19}
+            onChange={(e) => setCard((c) => ({ ...c, number: e.target.value.replace(/[^\d\s]/g, '') }))}
           />
           <input
             className="w-full rounded bg-dojo-ink p-2"
-            placeholder="MM/YY"
+            placeholder="XX/XX"
             value={card.expiry}
-            onChange={(e) => setCard((c) => ({ ...c, expiry: e.target.value }))}
+            maxLength={5}
+            onChange={(e) => setCard((c) => ({ ...c, expiry: formatExpiry(e.target.value) }))}
           />
           <input
             className="w-full rounded bg-dojo-ink p-2"
-            placeholder="CVV"
+            placeholder="XXX"
             value={card.cvv}
-            onChange={(e) => setCard((c) => ({ ...c, cvv: e.target.value }))}
+            maxLength={3}
+            onChange={(e) => setCard((c) => ({ ...c, cvv: e.target.value.replace(/\D/g, '') }))}
           />
           <input
             className="w-full rounded bg-dojo-ink p-2"
@@ -441,7 +558,7 @@ function LoginPage() {
   async function submit(event) {
     event.preventDefault()
     try {
-      await login(email, password)
+      await login(email.trim(), password)
       navigate(location.state?.from || '/account')
     } catch (err) {
       setError(err.message)
@@ -502,7 +619,15 @@ function ForgotPasswordPage() {
     const data = await apiFetch('/auth/forgot-password', { method: 'POST', body: JSON.stringify({ email }) })
     setMessage(data.message)
   }
-  return <form className="space-y-3" onSubmit={submit}><h1 className="font-serif text-3xl">Forgot Password</h1><input className="w-full rounded bg-dojo-ink p-2" onChange={(e) => setEmail(e.target.value)} /><button className="rounded bg-dojo-red px-4 py-2" type="submit">Send reset link</button><p>{message}</p></form>
+  return (
+    <form className="space-y-3" onSubmit={submit}>
+      <h1 className="font-serif text-3xl">Forgot Password</h1>
+      <input className="w-full rounded bg-dojo-ink p-2" placeholder="Email address" onChange={(e) => setEmail(e.target.value)} />
+      <p className="text-sm text-gray-400">Enter the email address used on your account.</p>
+      <button className="rounded bg-dojo-red px-4 py-2" type="submit">Send reset link</button>
+      <p>{message}</p>
+    </form>
+  )
 }
 
 function ResetPasswordPage() {
@@ -548,19 +673,45 @@ function OrderHistoryPage() {
 
 function ContactPage() {
   const [form, setForm] = useState({ name: '', email: '', message: '' })
+  const [phoneDigits, setPhoneDigits] = useState('')
   const [status, setStatus] = useState('')
+  const [error, setError] = useState('')
   async function submit(event) {
     event.preventDefault()
+    setError('')
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email.trim())) {
+      setError('Please enter a valid email address.')
+      return
+    }
+    if (phoneDigits.length !== 10) {
+      setError('Please enter phone number in (XXX) XXX-XXXX format.')
+      return
+    }
     const data = await apiFetch('/contact', { method: 'POST', body: JSON.stringify(form) })
     setStatus(data.message)
   }
   return (
     <form className="space-y-4" onSubmit={submit}>
       <h1 className="font-serif text-3xl">Contact</h1>
+      <p className="text-sm text-gray-300">
+        Please provide your contact information and reason for inquiry. Include confirmation numbers or other trackable details in the message when available.
+        The more relevant non-confidential information you share, the faster your request can be routed to the right person or department.
+      </p>
       <input className="w-full rounded bg-dojo-ink p-2" placeholder="Name" onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))} />
       <input className="w-full rounded bg-dojo-ink p-2" placeholder="Email" onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))} />
+      <input
+        className="w-full rounded bg-dojo-ink p-2"
+        placeholder="Phone (XXX) XXX-XXXX"
+        value={formatPhoneDigits(phoneDigits)}
+        onChange={(e) => {
+          const digits = e.target.value.replace(/\D/g, '').slice(0, 10)
+          setPhoneDigits(digits)
+          setForm((f) => ({ ...f, phone: digits }))
+        }}
+      />
       <textarea className="w-full rounded bg-dojo-ink p-2" placeholder="Message" onChange={(e) => setForm((f) => ({ ...f, message: e.target.value }))} />
       <button className="rounded bg-dojo-red px-4 py-2" type="submit">Send</button>
+      {error && <p className="text-dojo-crimson">{error}</p>}
       {status && (
         <div className="rounded border-2 border-green-400/70 bg-green-900/25 p-4 shadow-md">
           <p className="text-lg font-bold text-green-300">Message sent successfully.</p>
@@ -804,6 +955,12 @@ function ProductsPage() {
       </div>
       <div className="space-y-6">
         <article className="rounded border border-white/20 bg-dojo-ink p-5">
+          <img
+            className="mb-4 h-48 w-full rounded object-cover"
+            src="/assets/gi.jpg"
+            alt="Gi uniform"
+            loading="lazy"
+          />
           <h2 className="font-serif text-2xl">Gi — Traditional karate uniform</h2>
           <p className="mt-2 text-gray-300">
             Lightweight cotton-poly blend jacket and pants with reinforced stitching for stances and striking. Includes white belt; colored belts available separately.
@@ -813,6 +970,12 @@ function ProductsPage() {
           <Link className="mt-3 inline-block text-dojo-crimson underline" to="/shop/products/1">View in shop</Link>
         </article>
         <article className="rounded border border-white/20 bg-dojo-ink p-5">
+          <img
+            className="mb-4 h-48 w-full rounded object-cover"
+            src="/assets/karate_combat_gear_highres.jpg"
+            alt="Combat gear"
+            loading="lazy"
+          />
           <h2 className="font-serif text-2xl">Combat Gear — Sparring protection</h2>
           <p className="mt-2 text-gray-300">
             Mouthguard-compatible headgear, chest guard, shin guards, and gloves designed for controlled kumite. Ventilated padding and adjustable straps for a secure fit during drills and sparring rounds.
@@ -821,6 +984,12 @@ function ProductsPage() {
           <Link className="mt-3 inline-block text-dojo-crimson underline" to="/shop/products/2">View in shop</Link>
         </article>
         <article className="rounded border border-white/20 bg-dojo-ink p-5">
+          <img
+            className="mb-4 h-48 w-full rounded object-cover"
+            src="/assets/flaming-nunchucks.jpg"
+            alt="Flaming training gear"
+            loading="lazy"
+          />
           <h2 className="font-serif text-2xl">Flaming Knucks OF DOOM™ — Training gloves</h2>
           <p className="mt-2 text-gray-300">
             Premium padded gloves for bag work and partner drills (not for full-contact sparring without approved headgear). Wrist wrap support and breathable palm mesh.
@@ -848,6 +1017,12 @@ function ClassesServicesPage() {
       </div>
       <div className="space-y-6">
         <article className="rounded border border-white/20 bg-dojo-ink p-5">
+          <img
+            className="mb-4 h-48 w-full rounded object-cover"
+            src="/assets/private-lessons.jpg"
+            alt="Private lessons"
+            loading="lazy"
+          />
           <h2 className="font-serif text-2xl">Private lessons</h2>
           <p className="mt-2 text-gray-300">
             One-on-one sessions focused on your goals: kata refinement, tournament prep, fitness, or belt syllabus. Schedule preferred date and time at checkout when you add this service to your cart.
@@ -859,6 +1034,12 @@ function ClassesServicesPage() {
           <Link className="mt-3 inline-block text-dojo-crimson underline" to="/shop/services/4">Book via shop</Link>
         </article>
         <article className="rounded border border-white/20 bg-dojo-ink p-5">
+          <img
+            className="mb-4 h-48 w-full rounded object-cover"
+            src="/assets/group-sessions.jpg"
+            alt="Group sessions"
+            loading="lazy"
+          />
           <h2 className="font-serif text-2xl">Group sessions</h2>
           <p className="mt-2 text-gray-300">
             Train with peers in structured classes: basics, combinations, and partner work. Choose a session tier (beginner evening, intermediate weekend, or advanced sparring camp) when you add to cart.
@@ -870,6 +1051,12 @@ function ClassesServicesPage() {
           <Link className="mt-3 inline-block text-dojo-crimson underline" to="/shop/services/5">Book via shop</Link>
         </article>
         <article className="rounded border border-white/20 bg-dojo-ink p-5">
+          <img
+            className="mb-4 h-48 w-full rounded object-cover"
+            src="/assets/lifetime-membership.jpg"
+            alt="Lifetime membership"
+            loading="lazy"
+          />
           <h2 className="font-serif text-2xl">Lifetime membership</h2>
           <p className="mt-2 text-gray-300">
             Long-term access to facility hours, group classes, and member events (subject to dojo rules and conduct). Requires acknowledgment of membership terms at checkout.
@@ -930,6 +1117,11 @@ function AboutPage() {
 
   return (
     <section className="space-y-8">
+      <img
+        src="/assets/logo.jpg"
+        alt="Karate Skillz Dojo logo"
+        className="h-auto w-full max-w-2xl rounded border border-white/15 bg-dojo-ink/50 p-2 shadow-lg"
+      />
       <div className="rounded border border-white/15 bg-dojo-ink/70 p-5">
         <h1 className="font-serif text-3xl">About Karate Skillz Dojo</h1>
         <p className="mt-3 text-gray-300">

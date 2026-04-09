@@ -679,7 +679,8 @@ function ContactPage() {
   async function submit(event) {
     event.preventDefault()
     setError('')
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email.trim())) {
+    const email = form.email.trim()
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       setError('Please enter a valid email address.')
       return
     }
@@ -687,7 +688,7 @@ function ContactPage() {
       setError('Please enter phone number in (XXX) XXX-XXXX format.')
       return
     }
-    const data = await apiFetch('/contact', { method: 'POST', body: JSON.stringify(form) })
+    const data = await apiFetch('/contact', { method: 'POST', body: JSON.stringify({ ...form, email }) })
     setStatus(data.message)
   }
   return (

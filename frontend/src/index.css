@@ -1,3 +1,135 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Hero: flame pillars behind kicking figure */
+.home-flames {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.home-flame {
+  position: absolute;
+  bottom: 8%;
+  width: min(38%, 200px);
+  height: 70%;
+  border-radius: 50% 50% 40% 40% / 65% 65% 35% 35%;
+  filter: blur(18px);
+  mix-blend-mode: screen;
+  opacity: 0.75;
+  animation: home-flame-flicker 0.55s ease-in-out infinite alternate;
+}
+
+.home-flame--l {
+  left: 2%;
+  background: radial-gradient(ellipse 80% 100% at 50% 100%, #fff3a1 0%, #ff6b1a 25%, #dc1b45 55%, transparent 78%);
+  animation-delay: 0s;
+}
+
+.home-flame--c {
+  left: 50%;
+  width: min(32%, 160px);
+  height: 85%;
+  background: radial-gradient(ellipse 70% 100% at 50% 100%, #ffe566 0%, #ff4500 30%, #b91c1c 60%, transparent 80%);
+  animation: home-flame-flicker-center 0.55s ease-in-out infinite alternate;
+  animation-delay: 0.2s;
+}
+
+.home-flame--r {
+  right: 2%;
+  left: auto;
+  background: radial-gradient(ellipse 80% 100% at 50% 100%, #ffecd2 0%, #ff8c42 28%, #dc1b45 52%, transparent 78%);
+  animation-delay: 0.38s;
+}
+
+@keyframes home-flame-flicker {
+  0% {
+    opacity: 0.55;
+    transform: scaleY(1) scaleX(1);
+  }
+  100% {
+    opacity: 0.92;
+    transform: scaleY(1.12) scaleX(1.05);
+  }
+}
+
+@keyframes home-flame-flicker-center {
+  0% {
+    opacity: 0.5;
+    transform: translateX(-50%) scaleY(1) scaleX(1);
+  }
+  100% {
+    opacity: 0.95;
+    transform: translateX(-50%) scaleY(1.15) scaleX(1.08);
+  }
+}
+
+/* Silhouette kick motion (whole mark pivots slightly) */
+.home-kick-figure {
+  transform-origin: 42% 72%;
+  animation: home-kick-sweep 2.4s ease-in-out infinite;
+  filter: drop-shadow(0 0 14px rgba(220, 27, 69, 0.5)) drop-shadow(0 0 28px rgba(255, 100, 30, 0.25));
+}
+
+@keyframes home-kick-sweep {
+  0%,
+  100% {
+    transform: rotate(0deg) translateY(0);
+  }
+  18% {
+    transform: rotate(-5deg) translateY(-6px);
+  }
+  36% {
+    transform: rotate(3deg) translateY(-2px);
+  }
+  54% {
+    transform: rotate(-3deg) translateY(-5px);
+  }
+  72% {
+    transform: rotate(2deg) translateY(-1px);
+  }
+}
+
+/* News ticker */
+.home-marquee-wrap {
+  width: 100%;
+  max-width: 100%;
+  overflow: hidden;
+  mask-image: linear-gradient(90deg, transparent, black 4%, black 96%, transparent);
+}
+
+.home-marquee-inner {
+  display: flex;
+  flex-flow: row nowrap;
+  width: max-content;
+  will-change: transform;
+  animation: home-marquee-scroll 42s linear infinite;
+}
+
+.home-marquee-inner:hover {
+  animation-play-state: paused;
+}
+
+/* Two identical segments; -50% == one segment width → seamless loop, right-to-left drift */
+@keyframes home-marquee-scroll {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    transform: translate3d(-50%, 0, 0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .home-flame,
+  .home-kick-figure {
+    animation: none;
+  }
+
+  .home-flame--c {
+    transform: translateX(-50%);
+  }
+}

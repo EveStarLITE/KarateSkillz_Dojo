@@ -20,8 +20,7 @@
 */
 .home-hero-gif {
   filter: drop-shadow(0 0 14px rgba(220, 27, 69, 0.45)) drop-shadow(0 0 28px rgba(255, 100, 30, 0.2));
-  /* Visually remove white matte: white becomes transparent over dark hero background */
-  mix-blend-mode: multiply;
+  mix-blend-mode: normal;
 }
 
 /* Optional: SVG or static image kick motion (no animated GIF on this element) */

@@ -93,7 +93,7 @@ function HomePage() {
     document.title = 'Karate Skillz Dojo'
   }, [])
   return (
-    <section className="space-y-14 md:space-y-20">
+    <section className="home-page space-y-14 md:space-y-20">
       <div className="flex w-full flex-col items-center">
         <div className="home-hero-visual relative mx-auto flex w-full max-w-5xl items-center justify-center px-4 py-8 md:py-12">
           <div className="home-flames" aria-hidden>
@@ -102,7 +102,7 @@ function HomePage() {
             <span className="home-flame home-flame--r" />
           </div>
           <img
-            src="/assets/karate_skillz_dojo_smooth.gif"
+            src="/assets/KarateSkillzDojo.gif"
             alt="Karate Skillz Dojo — animated logo"
             className="home-hero-gif relative z-10 w-full max-w-[min(100%,640px)] object-contain"
             width={900}

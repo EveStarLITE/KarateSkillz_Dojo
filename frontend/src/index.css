@@ -2,6 +2,17 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Match GIF background + full-bleed home hero feel */
+.home-page {
+  background: linear-gradient(135deg, #140f17 0%, #0b0a10 100%);
+}
+
+.home-hero-visual {
+  border-radius: 24px;
+  background: linear-gradient(135deg, #140f17 0%, #0b0a10 100%);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08);
+}
+
 /* Hero: flame pillars behind kicking figure */
 .home-flames {
   position: absolute;
@@ -74,6 +85,8 @@
 */
 .home-hero-gif {
   filter: drop-shadow(0 0 14px rgba(220, 27, 69, 0.45)) drop-shadow(0 0 28px rgba(255, 100, 30, 0.2));
+  /* Visually remove white matte: white becomes transparent over dark hero background */
+  mix-blend-mode: multiply;
 }
 
 /* Optional: SVG or static image kick motion (no animated GIF on this element) */
@@ -140,6 +153,7 @@
 
   .home-hero-gif {
     filter: none;
+    mix-blend-mode: normal;
   }
 
   .home-flame--c {

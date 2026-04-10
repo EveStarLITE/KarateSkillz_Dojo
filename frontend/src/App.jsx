@@ -96,13 +96,8 @@ function HomePage() {
     <section className="home-page space-y-14 md:space-y-20">
       <div className="flex w-full flex-col items-center">
         <div className="home-hero-visual relative mx-auto flex w-full max-w-5xl items-center justify-center px-4 py-8 md:py-12">
-          <div className="home-flames" aria-hidden>
-            <span className="home-flame home-flame--l" />
-            <span className="home-flame home-flame--c" />
-            <span className="home-flame home-flame--r" />
-          </div>
           <img
-            src="/assets/KarateSkillzDojo.gif"
+            src="/assets/KarateSkillzDojo.gif?v=2"
             alt="Karate Skillz Dojo — animated logo"
             className="home-hero-gif relative z-10 w-full max-w-[min(100%,640px)] object-contain"
             width={900}

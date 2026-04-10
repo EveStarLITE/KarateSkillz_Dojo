@@ -67,7 +67,16 @@
   }
 }
 
-/* Silhouette kick motion (whole mark pivots slightly) */
+/*
+  Do NOT put CSS transform/keyframe animations on <img> elements that display animated GIFs —
+  browsers often stop updating GIF frames when the image layer is constantly recomposited.
+  Use .home-hero-gif for raster GIF/WebP heroes (glow only, no transform animation).
+*/
+.home-hero-gif {
+  filter: drop-shadow(0 0 14px rgba(220, 27, 69, 0.45)) drop-shadow(0 0 28px rgba(255, 100, 30, 0.2));
+}
+
+/* Optional: SVG or static image kick motion (no animated GIF on this element) */
 .home-kick-figure {
   transform-origin: 42% 72%;
   animation: home-kick-sweep 2.4s ease-in-out infinite;
@@ -127,6 +136,10 @@
   .home-flame,
   .home-kick-figure {
     animation: none;
+  }
+
+  .home-hero-gif {
+    filter: none;
   }
 
   .home-flame--c {

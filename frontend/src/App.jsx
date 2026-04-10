@@ -102,11 +102,13 @@ function HomePage() {
             <span className="home-flame home-flame--r" />
           </div>
           <img
-            src="/assets/dojo-fierce-logo.gif"
-            alt="Karate Skillz Dojo — martial artist silhouette with sweeping kick"
-            className="home-kick-figure relative z-10 w-full max-w-[min(100%,640px)] object-contain"
+            src="/assets/karate_skillz_dojo_smooth.gif"
+            alt="Karate Skillz Dojo — animated logo"
+            className="home-hero-gif relative z-10 w-full max-w-[min(100%,640px)] object-contain"
             width={900}
             height={360}
+            decoding="async"
+            fetchPriority="high"
           />
         </div>
 

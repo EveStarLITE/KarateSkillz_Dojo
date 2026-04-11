@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500" role="img" aria-label="Gi uniform">
   <rect width="800" height="500" fill="#14121b"/>
   <rect x="140" y="80" width="520" height="340" rx="18" fill="#222030" stroke="#dc1b45" stroke-width="6"/>
   <path d="M290 140l-70 90 75 56 55-76zM510 140l70 90-75 56-55-76z" fill="#f2f2f2"/>
@@ -6,19 +6,4 @@
   <path d="M400 170v210" stroke="#d4d4d4" stroke-width="6"/>
   <rect x="315" y="292" width="170" height="14" fill="#111"/>
   <text x="400" y="455" text-anchor="middle" fill="#f3f3f3" font-size="44" font-family="Arial Black, Arial">GI</text>
-</svg>
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 700" role="img" aria-label="Karate gi">
-  <defs>
-    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%" stop-color="#1a1a22"/>
-      <stop offset="100%" stop-color="#0b0a10"/>
-    </linearGradient>
-  </defs>
-  <rect width="1200" height="700" fill="url(#bg)"/>
-  <rect x="300" y="180" width="600" height="420" rx="24" fill="#f6f6f8"/>
-  <polygon points="300,220 470,220 410,330 280,300" fill="#ececf1"/>
-  <polygon points="900,220 730,220 790,330 920,300" fill="#ececf1"/>
-  <rect x="560" y="180" width="80" height="220" fill="#e9e9ef"/>
-  <rect x="510" y="350" width="180" height="16" fill="#c11436"/>
-  <text x="60" y="90" fill="#ffffff" font-size="56" font-family="Arial Black, Arial">Traditional Gi</text>
 </svg>

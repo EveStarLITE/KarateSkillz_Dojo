@@ -12,6 +12,7 @@ const userRoutes = require('./src/routes/userRoutes');
 const adminRoutes = require('./src/routes/adminRoutes');
 const contactRoutes = require('./src/routes/contactRoutes');
 const ticketRoutes = require('./src/routes/ticketRoutes');
+const availabilityRoutes = require('./src/routes/availabilityRoutes');
 const { createDefaultAdminIfMissing } = require('./src/data/store');
 
 const app = express();
@@ -44,6 +45,7 @@ app.get('/api/v1/health', (req, res) => {
 app.use('/api/v1/auth', authLimiter, authRoutes);
 app.use('/api/v1/contact', authLimiter, contactRoutes);
 app.use('/api/v1', catalogRoutes);
+app.use('/api/v1/availability', availabilityRoutes);
 app.use('/api/v1/orders', orderRoutes);
 app.use('/api/v1/users', userRoutes);
 app.use('/api/v1/tickets', ticketRoutes);

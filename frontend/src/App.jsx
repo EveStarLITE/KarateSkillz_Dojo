@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Link, Navigate, Route, Routes, useLocation, useNavigate, useParams } from 'react-router-dom'
 import Layout from './components/Layout'
+import PrivateLessonPicker from './components/PrivateLessonPicker'
 import { apiFetch } from './api'
 import { useAuth } from './contexts/AuthContext'
 import { useCart } from './contexts/CartContext'
@@ -97,8 +98,8 @@ function HomePage() {
       <div className="flex w-full flex-col items-center">
         <div className="home-hero-visual relative mx-auto flex w-full max-w-5xl items-center justify-center px-4 py-8 md:py-12">
           <img
-            key="karate-skillz-dojo-gif-v4"
-            src="/assets/KarateSkillzDojo.gif?v=4"
+            key="karate-skillz-dojo-gif-v5"
+            src="/assets/KarateSkillzDojo.gif?v=5"
             alt="Karate Skillz Dojo — animated logo"
             className="home-hero-gif relative z-10 w-full max-w-[min(100%,640px)] object-contain"
             width={900}
@@ -262,6 +263,7 @@ function DetailPage({ type }) {
           type: item.kind,
           price: Number(item.price || 0),
           options: { ...options, students: validRows },
+          ...(item.imageUrl ? { imageUrl: item.imageUrl } : {}),
         })
       }
       setAddedMessage('The item has been added to cart.')
@@ -300,8 +302,11 @@ function DetailPage({ type }) {
       <p className="font-semibold">${Number(item.price || 0).toFixed(2)}</p>
       {item.name.toLowerCase().includes('private') && (
         <div className="space-y-2">
-          <input className="w-full rounded bg-dojo-ink p-2" type="date" onChange={(e) => setOptions((o) => ({ ...o, preferredDate: e.target.value }))} />
-          <input className="w-full rounded bg-dojo-ink p-2" type="time" onChange={(e) => setOptions((o) => ({ ...o, preferredTime: e.target.value }))} />
+          <PrivateLessonPicker
+            preferredDate={options.preferredDate}
+            preferredTime={options.preferredTime}
+            onChange={(next) => setOptions((o) => ({ ...o, ...next }))}
+          />
         </div>
       )}
       {String(item.id) === '5' && (
@@ -1149,10 +1154,61 @@ function AdminPage({ endpoint, title }) {
   return <section><h1 className="font-serif text-3xl">{title}</h1><pre className="overflow-auto rounded bg-dojo-ink p-3 text-xs">{JSON.stringify(rows, null, 2)}</pre></section>
 }
 
+const PRODUCTS_PAGE_SECTIONS = [
+  {
+    id: '1',
+    title: 'Gi — Traditional karate uniform',
+    body: (
+      <>
+        <p className="mt-2 text-gray-300">
+          Lightweight cotton-poly blend jacket and pants with reinforced stitching for stances and striking. Includes white belt; colored belts available separately.
+          Ideal for class, grading, and light competition. Machine wash cold; air dry to preserve fit.
+        </p>
+        <p className="mt-2 text-sm text-gray-400">Shop price from catalog · Sizes: child through adult XL</p>
+      </>
+    ),
+    shopTo: '/shop/products/1',
+  },
+  {
+    id: '2',
+    title: 'Combat Gear — Sparring protection',
+    body: (
+      <>
+        <p className="mt-2 text-gray-300">
+          Mouthguard-compatible headgear, chest guard, shin guards, and gloves designed for controlled kumite. Ventilated padding and adjustable straps for a secure fit during drills and sparring rounds.
+        </p>
+        <p className="mt-2 text-sm text-gray-400">WFT-approved style options · Youth and adult kits</p>
+      </>
+    ),
+    shopTo: '/shop/products/2',
+  },
+  {
+    id: '3',
+    title: 'Flaming Knucks OF DOOM™ — Training gloves',
+    body: (
+      <>
+        <p className="mt-2 text-gray-300">
+          Premium padded gloves for bag work and partner drills (not for full-contact sparring without approved headgear). Wrist wrap support and breathable palm mesh.
+          Trademark name is for fun; training safety and respect for partners always come first.
+        </p>
+        <p className="mt-2 text-sm text-gray-400">Sizes S–XL · Pair</p>
+      </>
+    ),
+    shopTo: '/shop/products/3',
+  },
+]
+
 function ProductsPage() {
+  const { products } = useCatalog()
   useEffect(() => {
     document.title = 'Products | Karate Skillz Dojo'
   }, [])
+  const byId = useMemo(() => {
+    const m = {}
+    for (const p of products) m[String(p.id)] = p
+    return m
+  }, [products])
+
   return (
     <section className="space-y-8">
       <div>
@@ -1162,56 +1218,107 @@ function ProductsPage() {
         </p>
       </div>
       <div className="space-y-8">
-        <article className="grid gap-6 rounded border border-white/20 bg-dojo-ink p-5 md:grid-cols-[minmax(0,280px)_1fr] md:items-start">
-          <div className="mx-auto aspect-square w-full max-w-[280px] overflow-hidden rounded border border-white/10 bg-dojo-black/40 md:mx-0">
-            <img className="h-full w-full object-contain" src="/assets/gi.jpg" alt="Gi uniform" loading="lazy" />
-          </div>
-          <div>
-            <h2 className="font-serif text-2xl">Gi — Traditional karate uniform</h2>
-            <p className="mt-2 text-gray-300">
-              Lightweight cotton-poly blend jacket and pants with reinforced stitching for stances and striking. Includes white belt; colored belts available separately.
-              Ideal for class, grading, and light competition. Machine wash cold; air dry to preserve fit.
-            </p>
-            <p className="mt-2 text-sm text-gray-400">Shop price from catalog · Sizes: child through adult XL</p>
-            <Link className="mt-3 inline-block text-dojo-crimson underline" to="/shop/products/1">View in shop</Link>
-          </div>
-        </article>
-        <article className="grid gap-6 rounded border border-white/20 bg-dojo-ink p-5 md:grid-cols-[minmax(0,280px)_1fr] md:items-start">
-          <div className="mx-auto aspect-square w-full max-w-[280px] overflow-hidden rounded border border-white/10 bg-dojo-black/40 md:mx-0">
-            <img className="h-full w-full object-contain" src="/assets/karate_combat_gear_highres.jpg" alt="Combat gear" loading="lazy" />
-          </div>
-          <div>
-            <h2 className="font-serif text-2xl">Combat Gear — Sparring protection</h2>
-            <p className="mt-2 text-gray-300">
-              Mouthguard-compatible headgear, chest guard, shin guards, and gloves designed for controlled kumite. Ventilated padding and adjustable straps for a secure fit during drills and sparring rounds.
-            </p>
-            <p className="mt-2 text-sm text-gray-400">WFT-approved style options · Youth and adult kits</p>
-            <Link className="mt-3 inline-block text-dojo-crimson underline" to="/shop/products/2">View in shop</Link>
-          </div>
-        </article>
-        <article className="grid gap-6 rounded border border-white/20 bg-dojo-ink p-5 md:grid-cols-[minmax(0,280px)_1fr] md:items-start">
-          <div className="mx-auto aspect-square w-full max-w-[280px] overflow-hidden rounded border border-white/10 bg-dojo-black/40 md:mx-0">
-            <img className="h-full w-full object-contain" src="/assets/flaming-nunchucks.jpg" alt="Flaming training gear" loading="lazy" />
-          </div>
-          <div>
-            <h2 className="font-serif text-2xl">Flaming Knucks OF DOOM™ — Training gloves</h2>
-            <p className="mt-2 text-gray-300">
-              Premium padded gloves for bag work and partner drills (not for full-contact sparring without approved headgear). Wrist wrap support and breathable palm mesh.
-              Trademark name is for fun; training safety and respect for partners always come first.
-            </p>
-            <p className="mt-2 text-sm text-gray-400">Sizes S–XL · Pair</p>
-            <Link className="mt-3 inline-block text-dojo-crimson underline" to="/shop/products/3">View in shop</Link>
-          </div>
-        </article>
+        {PRODUCTS_PAGE_SECTIONS.map((section) => {
+          const item = byId[section.id]
+          return (
+            <article
+              key={section.id}
+              className="grid gap-6 rounded border border-white/20 bg-dojo-ink p-5 md:grid-cols-[minmax(0,280px)_1fr] md:items-start"
+            >
+              <div className="mx-auto mb-3 aspect-square w-full max-w-[280px] overflow-hidden rounded border border-white/10 bg-dojo-black/40 md:mx-0 md:mb-0">
+                {item?.imageUrl ? (
+                  <img
+                    className="h-full w-full object-contain"
+                    src={item.imageUrl}
+                    alt={item.name || section.title}
+                    loading="lazy"
+                  />
+                ) : (
+                  <div className="flex h-full min-h-[200px] items-center justify-center px-2 text-center text-sm text-gray-500">
+                    Loading catalog…
+                  </div>
+                )}
+              </div>
+              <div>
+                <h2 className="font-serif text-2xl">{section.title}</h2>
+                {section.body}
+                <Link className="mt-3 inline-block text-dojo-crimson underline" to={section.shopTo}>
+                  View in shop
+                </Link>
+              </div>
+            </article>
+          )
+        })}
       </div>
     </section>
   )
 }
 
+const CLASSES_PAGE_SECTIONS = [
+  {
+    id: '4',
+    title: 'Private lessons',
+    body: (
+      <>
+        <p className="mt-2 text-gray-300">
+          One-on-one sessions focused on your goals: kata refinement, tournament prep, fitness, or belt syllabus. Schedule preferred date and time at checkout when you add this service to your cart.
+        </p>
+        <ul className="mt-2 list-inside list-disc text-sm text-gray-400">
+          <li>55-minute blocks · Instructor match by style and availability</li>
+          <li>Great for accelerated progress or catching up after time away</li>
+        </ul>
+      </>
+    ),
+    shopTo: '/shop/services/4',
+    linkLabel: 'Book via shop',
+  },
+  {
+    id: '5',
+    title: 'Group sessions',
+    body: (
+      <>
+        <p className="mt-2 text-gray-300">
+          Train with peers in structured classes: basics, combinations, and partner work. Choose a session tier (beginner evening, intermediate weekend, or advanced sparring camp) when you add to cart.
+        </p>
+        <ul className="mt-2 list-inside list-disc text-sm text-gray-400">
+          <li>Consistent curriculum aligned with dojo values</li>
+          <li>Opportunities for leadership and teamwork</li>
+        </ul>
+      </>
+    ),
+    shopTo: '/shop/services/5',
+    linkLabel: 'Book via shop',
+  },
+  {
+    id: '6',
+    title: 'Lifetime membership',
+    body: (
+      <>
+        <p className="mt-2 text-gray-300">
+          Long-term access to facility hours, group classes, and member events (subject to dojo rules and conduct). Requires acknowledgment of membership terms at checkout.
+        </p>
+        <ul className="mt-2 list-inside list-disc text-sm text-gray-400">
+          <li>Best value for families and committed students</li>
+          <li>Includes priority registration for seminars when offered</li>
+        </ul>
+      </>
+    ),
+    shopTo: '/shop/services/6',
+    linkLabel: 'View in shop',
+  },
+]
+
 function ClassesServicesPage() {
+  const { services } = useCatalog()
   useEffect(() => {
     document.title = 'Classes / Services | Karate Skillz Dojo'
   }, [])
+  const byId = useMemo(() => {
+    const m = {}
+    for (const s of services) m[String(s.id)] = s
+    return m
+  }, [services])
+
   return (
     <section className="space-y-8">
       <div>
@@ -1221,54 +1328,37 @@ function ClassesServicesPage() {
         </p>
       </div>
       <div className="space-y-8">
-        <article className="grid gap-6 rounded border border-white/20 bg-dojo-ink p-5 md:grid-cols-[minmax(0,280px)_1fr] md:items-start">
-          <div className="mx-auto aspect-square w-full max-w-[280px] overflow-hidden rounded border border-white/10 bg-dojo-black/40 md:mx-0">
-            <img className="h-full w-full object-contain" src="/assets/private-lessons.jpg" alt="Private lessons" loading="lazy" />
-          </div>
-          <div>
-            <h2 className="font-serif text-2xl">Private lessons</h2>
-            <p className="mt-2 text-gray-300">
-              One-on-one sessions focused on your goals: kata refinement, tournament prep, fitness, or belt syllabus. Schedule preferred date and time at checkout when you add this service to your cart.
-            </p>
-            <ul className="mt-2 list-inside list-disc text-sm text-gray-400">
-              <li>55-minute blocks · Instructor match by style and availability</li>
-              <li>Great for accelerated progress or catching up after time away</li>
-            </ul>
-            <Link className="mt-3 inline-block text-dojo-crimson underline" to="/shop/services/4">Book via shop</Link>
-          </div>
-        </article>
-        <article className="grid gap-6 rounded border border-white/20 bg-dojo-ink p-5 md:grid-cols-[minmax(0,280px)_1fr] md:items-start">
-          <div className="mx-auto aspect-square w-full max-w-[280px] overflow-hidden rounded border border-white/10 bg-dojo-black/40 md:mx-0">
-            <img className="h-full w-full object-contain" src="/assets/group-sessions.jpg" alt="Group sessions" loading="lazy" />
-          </div>
-          <div>
-            <h2 className="font-serif text-2xl">Group sessions</h2>
-            <p className="mt-2 text-gray-300">
-              Train with peers in structured classes: basics, combinations, and partner work. Choose a session tier (beginner evening, intermediate weekend, or advanced sparring camp) when you add to cart.
-            </p>
-            <ul className="mt-2 list-inside list-disc text-sm text-gray-400">
-              <li>Consistent curriculum aligned with dojo values</li>
-              <li>Opportunities for leadership and teamwork</li>
-            </ul>
-            <Link className="mt-3 inline-block text-dojo-crimson underline" to="/shop/services/5">Book via shop</Link>
-          </div>
-        </article>
-        <article className="grid gap-6 rounded border border-white/20 bg-dojo-ink p-5 md:grid-cols-[minmax(0,280px)_1fr] md:items-start">
-          <div className="mx-auto aspect-square w-full max-w-[280px] overflow-hidden rounded border border-white/10 bg-dojo-black/40 md:mx-0">
-            <img className="h-full w-full object-contain" src="/assets/lifetime-membership.jpg" alt="Lifetime membership" loading="lazy" />
-          </div>
-          <div>
-            <h2 className="font-serif text-2xl">Lifetime membership</h2>
-            <p className="mt-2 text-gray-300">
-              Long-term access to facility hours, group classes, and member events (subject to dojo rules and conduct). Requires acknowledgment of membership terms at checkout.
-            </p>
-            <ul className="mt-2 list-inside list-disc text-sm text-gray-400">
-              <li>Best value for families and committed students</li>
-              <li>Includes priority registration for seminars when offered</li>
-            </ul>
-            <Link className="mt-3 inline-block text-dojo-crimson underline" to="/shop/services/6">View in shop</Link>
-          </div>
-        </article>
+        {CLASSES_PAGE_SECTIONS.map((section) => {
+          const item = byId[section.id]
+          return (
+            <article
+              key={section.id}
+              className="grid gap-6 rounded border border-white/20 bg-dojo-ink p-5 md:grid-cols-[minmax(0,280px)_1fr] md:items-start"
+            >
+              <div className="mx-auto mb-3 aspect-square w-full max-w-[280px] overflow-hidden rounded border border-white/10 bg-dojo-black/40 md:mx-0 md:mb-0">
+                {item?.imageUrl ? (
+                  <img
+                    className="h-full w-full object-contain"
+                    src={item.imageUrl}
+                    alt={item.name || section.title}
+                    loading="lazy"
+                  />
+                ) : (
+                  <div className="flex h-full min-h-[200px] items-center justify-center px-2 text-center text-sm text-gray-500">
+                    Loading catalog…
+                  </div>
+                )}
+              </div>
+              <div>
+                <h2 className="font-serif text-2xl">{section.title}</h2>
+                {section.body}
+                <Link className="mt-3 inline-block text-dojo-crimson underline" to={section.shopTo}>
+                  {section.linkLabel}
+                </Link>
+              </div>
+            </article>
+          )
+        })}
       </div>
     </section>
   )
@@ -1328,6 +1418,7 @@ export default function App() {
         <Route path="/about" element={<Navigate to="/" replace />} />
         <Route path="/classes-services" element={<ClassesServicesPage />} />
         <Route path="/products" element={<ProductsPage />} />
+        <Route path="/sales" element={<Navigate to="/shop" replace />} />
         <Route path="/shop" element={<ShopPage />} />
         <Route path="/shop/products/:id" element={<DetailPage type="products" />} />
         <Route path="/shop/services/:id" element={<DetailPage type="services" />} />

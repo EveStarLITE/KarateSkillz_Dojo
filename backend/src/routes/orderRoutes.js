@@ -5,6 +5,11 @@ const { orders } = require('../data/store');
 const jwt = require('jsonwebtoken');
 const { requireAuth } = require('../middleware/auth');
 const { sendEmail } = require('../services/emailService');
+const {
+  collectPrivateLessonBookings,
+  normalizePreferredTime,
+  PRIVATE_LESSON_SLOT_TIMES,
+} = require('../utils/privateLessonSlots');
 
 const router = express.Router();
 
@@ -31,6 +36,28 @@ const orderSchema = z.object({
 router.post('/', async (req, res) => {
   const parsed = orderSchema.safeParse(req.body);
   if (!parsed.success) return res.status(400).json({ message: 'Invalid order payload' });
+
+  const bookedKeys = new Set(
+    collectPrivateLessonBookings(orders).map((b) => `${b.date}|${b.time}`)
+  );
+  for (const item of parsed.data.items) {
+    if (item.type !== 'service' || String(item.id) !== '4') continue;
+    const d = item.options?.preferredDate;
+    const t = normalizePreferredTime(item.options?.preferredTime);
+    if (!d || !t) {
+      return res.status(400).json({ message: 'Private lessons require a preferred date and time.' });
+    }
+    if (!PRIVATE_LESSON_SLOT_TIMES.includes(t)) {
+      return res.status(400).json({ message: 'Invalid private lesson time slot.' });
+    }
+    const key = `${d}|${t}`;
+    if (bookedKeys.has(key)) {
+      return res.status(409).json({
+        message: `That private lesson slot (${d} at ${t}) is already booked. Please choose another time.`,
+      });
+    }
+    bookedKeys.add(key);
+  }
 
   const orderNumber = `KSD-${Date.now()}`;
   const paymentReference = `PAY-${crypto.randomUUID().slice(0, 8).toUpperCase()}`;

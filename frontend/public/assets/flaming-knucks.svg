@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500" role="img" aria-label="Flaming Knucks training gear">
   <rect width="800" height="500" fill="#120f14"/>
   <rect x="120" y="75" width="560" height="350" rx="18" fill="#211a26" stroke="#dc1b45" stroke-width="6"/>
   <path d="M250 300c0-72 54-132 126-132h50c72 0 126 60 126 132v35H250z" fill="#3a3146" stroke="#f3f3f3" stroke-width="5"/>
@@ -7,12 +7,4 @@
   <circle cx="465" cy="256" r="24" fill="#dc1b45"/>
   <path d="M305 160l25-35 20 30 20-40 25 30 28-28 17 38" stroke="#ff7b1f" stroke-width="8" fill="none" stroke-linecap="round"/>
   <text x="400" y="458" text-anchor="middle" fill="#f3f3f3" font-size="36" font-family="Arial Black, Arial">FLAMING KNUCKS</text>
-</svg>
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 700" role="img" aria-label="Training gloves">
-  <rect width="1200" height="700" fill="#0f0b12"/>
-  <path d="M260 520c50-130 130-200 230-200 30 0 62 8 95 25l-45 145-180 90-100-60z" fill="#dc1b45"/>
-  <path d="M640 530c40-125 118-200 214-200 34 0 68 11 96 27l-45 140-183 92-82-59z" fill="#b91231"/>
-  <rect x="510" y="360" width="86" height="180" rx="24" fill="#2a2330"/>
-  <rect x="930" y="370" width="80" height="172" rx="24" fill="#2a2330"/>
-  <text x="54" y="90" fill="#ffffff" font-size="56" font-family="Arial Black, Arial">Flaming Knucks OF DOOM</text>
 </svg>

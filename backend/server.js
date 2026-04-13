@@ -12,13 +12,11 @@ const userRoutes = require('./src/routes/userRoutes');
 const adminRoutes = require('./src/routes/adminRoutes');
 const contactRoutes = require('./src/routes/contactRoutes');
 const ticketRoutes = require('./src/routes/ticketRoutes');
-const { createDefaultAdminIfMissing } = require('./src/data/store');
+const { ensureDefaultAdmin } = require('./src/db/seed');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
 const CLIENT_ORIGIN = process.env.CLIENT_ORIGIN || 'http://localhost:5173';
-
-createDefaultAdminIfMissing();
 
 app.use(
   helmet({
@@ -52,6 +50,14 @@ app.use('/api/v1/admin', adminRoutes);
 app.use(notFoundHandler);
 app.use(errorHandler);
 
-app.listen(PORT, () => {
-  console.log(`Karate Skillz Dojo API listening on http://localhost:${PORT}`);
+async function start() {
+  await ensureDefaultAdmin();
+  app.listen(PORT, () => {
+    console.log(`Karate Skillz Dojo API listening on http://localhost:${PORT}`);
+  });
+}
+
+start().catch((err) => {
+  console.error('Server failed to start', err);
+  process.exit(1);
 });
